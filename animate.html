@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <canvas id="board" width="500px" height="200px"></canvas>
+    </body>
+    <script src="src/dev-util.js"></script>
+    <script>
+
+        var canvasEl = document.getElementById("board");
+
+        var ctx = canvasEl.getContext("2d");
+
+        const threshold = 100;
+
+        function clearCanvas(ctx){
+            ctx.clearRect(0, 0, 500, 500);
+        }
+
+        function ping(ctx, x, y){
+            function _frame(r){
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, (2 * Math.PI));
+                ctx.stroke();
+
+                if(r < threshold){
+                    return (() => { window.requestAnimationFrame(_frame(r + 1)); });
+                }
+
+                return (() => {return null; });
+            }
+
+            return () => { window.requestAnimationFrame(_frame(0)); };
+        }
+
+        var animations = [];
+
+        function doAnimations(){
+            var doneList = [];
+
+            clearCanvas(ctx);
+            for(let ix = 0; ix < animations.length; ++ix){
+                let frame = animations[ix];
+                let next = frame();
+
+                if(undefined === next){
+                    doneList.push(ix);
+                }
+            }
+
+            for(let ix = 0; ix < doneList.length; ++ix){
+                animations.splice(doneList[ix], 1);
+            }
+
+            return;
+        }
+
+        function listener(e, ctx){
+            animation = ping(ctx, e.clientX, e.clientY);
+            animations.push(animation);
+        }
+
+        setInterval(doAnimations, 50);
+
+        canvasEl.addEventListener("click", e => listener(e, ctx));
+    </script>
+</html>
