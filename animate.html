@@ -2,19 +2,21 @@
 
 <html>
     <body>
-        <canvas id="board" width="500px" height="200px"></canvas>
+        <canvas id="board" width="1600" height="1000" style="background: #e6eded;"></canvas>
     </body>
     <script src="src/dev-util.js"></script>
     <script>
+        const canvasWidth = 1600;
+        const canvasHeight = 1000;
+        const threshold = 800;
+        const refreshMs = 50;
 
         var canvasEl = document.getElementById("board");
 
         var ctx = canvasEl.getContext("2d");
 
-        const threshold = 100;
-
         function clearCanvas(ctx){
-            ctx.clearRect(0, 0, 500, 500);
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         }
 
         function ping(ctx, x, y){
@@ -36,20 +38,14 @@
         var animations = [];
 
         function doAnimations(){
-            var doneList = [];
 
             clearCanvas(ctx);
-            for(let ix = 0; ix < animations.length; ++ix){
-                let frame = animations[ix];
-                let next = frame();
+            for(let ix = (animations.length - 1); ix >= 0; --ix){
+                let frame = animations.pop();
 
-                if(undefined === next){
-                    doneList.push(ix);
+                if ("function" === typeof frame){
+                    frame();
                 }
-            }
-
-            for(let ix = 0; ix < doneList.length; ++ix){
-                animations.splice(doneList[ix], 1);
             }
 
             return;
@@ -60,7 +56,7 @@
             animations.push(animation);
         }
 
-        setInterval(doAnimations, 50);
+        setInterval(doAnimations, refreshMs);
 
         canvasEl.addEventListener("click", e => listener(e, ctx));
     </script>
