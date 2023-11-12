@@ -2,14 +2,19 @@
 
 <html>
     <body>
-        <canvas id="board" width="1600" height="1000" style="background: #e6eded;"></canvas>
+        <canvas id="board" width="1600" height="1000" style="background: WhiteSmoke;"></canvas>
     </body>
     <script src="src/dev-util.js"></script>
     <script>
         const canvasWidth = 1600;
         const canvasHeight = 1000;
-        const threshold = 800;
-        const refreshMs = 50;
+        const threshold = 20;
+        const refreshMs = 10;
+
+        const pingColor = "#1bf56b";
+        const pingInitialRadius = 5; // starting radius of the ping
+        const pingSpacing = 2;  // space between the inner and outer rings
+        const pingExpansionRate = 0.4; // number of pixels r expands per frame
 
         var canvasEl = document.getElementById("board");
 
@@ -21,18 +26,26 @@
 
         function ping(ctx, x, y){
             function _frame(r){
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(x, y, r, 0, (2 * Math.PI));
+                ctx.strokeStyle = pingColor;
+                ctx.arc(x, y, r - pingSpacing, 0, (2 * Math.PI));
                 ctx.stroke();
+                ctx.beginPath();
+                ctx.fillStyle = "#b7f7cf";
+                ctx.fillStyle = "#04dba9";
+                ctx.arc(x, y, r, 0, (2 * Math.PI));
+                ctx.fill();
+                ctx.restore();
 
                 if(r < threshold){
-                    return (() => { window.requestAnimationFrame(_frame(r + 1)); });
+                    return (() => { window.requestAnimationFrame(_frame(r + 0.4)); });
                 }
 
                 return (() => {return null; });
             }
 
-            return () => { window.requestAnimationFrame(_frame(0)); };
+            return () => { window.requestAnimationFrame(_frame(pingInitialRadius)); };
         }
 
         var animations = [];
